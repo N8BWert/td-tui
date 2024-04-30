@@ -10,15 +10,15 @@ use crate::world::tower_defense_world::TowerDefenseWorld;
 #[system(
     world=TowerDefenseWorld,
     read=[enemy_type],
-    write=[enemy_position, health],
+    write=[health, enemy_position],
     _write=[base_health],
-    filter=[*enemy_type == EnemyType::Base]
+    filter=[*enemy_type == EnemyType::Base],
 )]
 pub fn base_enemy_movement_system() {
     *enemy_position = enemy_position.saturating_sub(1);
     if *enemy_position == 0 {
         *base_health = base_health.saturating_sub(1);
-        *health = 0;
+        *health = health.saturating_sub(1);
     }
 }
 

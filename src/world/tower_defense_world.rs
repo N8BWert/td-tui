@@ -4,14 +4,17 @@
 
 use nate_engine::world;
 
-use crate::{TowerType, EnemyType, TowerTarget};
+use crate::{EnemyType, TowerTarget, TowerType, TOWER_SEPARATION};
 
+/// World the running tower defense games
 #[world(
     singular = [
         base_health,
         base_damage,
         removal_entities,
         alive_enemies,
+        selected_tower,
+        help_displayed,
     ]
 )]
 pub struct TowerDefenseWorld {
@@ -40,6 +43,10 @@ pub struct TowerDefenseWorld {
     removal_entities: Vec<usize>,
     // Total Alive Enemies
     alive_enemies: u32,
+    // Tower the cursor is on
+    selected_tower: u32,
+    // Whether or not help is being displayed
+    help_displayed: bool,
 }
 
 impl TowerDefenseWorld {
@@ -80,6 +87,35 @@ impl TowerDefenseWorld {
         tower_id
     }
 
+    /// Add a broken tower
+    pub fn add_broken_tower(
+        &mut self,
+    ) -> usize {
+        self.add_tower(
+            TowerType::Broken,
+            TowerTarget::First,
+            (0, 0),
+            String::from("-"),
+        )
+    }
+
+    /// Add a base tower (range of 5 units)
+    pub fn add_base_tower(
+        &mut self,
+        target_enemy: TowerTarget,
+        tower_number: u32,
+    ) -> usize {
+        let start = TOWER_SEPARATION * tower_number;
+        let end = TOWER_SEPARATION * (tower_number + 1);
+        let midpoint = (start + end) / 2;
+        self.add_tower(
+            TowerType::Base,
+            target_enemy,
+            (midpoint - 2, midpoint + 2),
+            String::from("!"),
+        )
+    }
+
     /// Add a bunch of enemies with their components
     pub fn add_enemies(
         &mut self,
@@ -107,6 +143,16 @@ impl TowerDefenseWorld {
         )
     }
 
+    /// Add a bunch of broken towers
+    pub fn add_broken_towers(&mut self, towers: usize) -> Vec<usize> {
+        let tower_ids = self.add_entities(towers);
+        self.set_tower_types(&tower_ids, vec![TowerType::Broken; towers]);
+        self.set_target_enemys(&tower_ids, vec![TowerTarget::First; towers]);
+        self.set_tower_boundss(&tower_ids, vec![(0, 0); towers]);
+        self.set_sprites(&tower_ids, vec![String::from("-"); towers]);
+        tower_ids
+    }
+
     /// Initialize the singular components of the world
     pub fn initialize_singular_components(
         &mut self,
@@ -116,6 +162,8 @@ impl TowerDefenseWorld {
         self.set_base_damage(0);
         self.set_removal_entities(Vec::new());
         self.set_alive_enemies(0);
+        self.set_selected_tower(0);
+        self.set_help_displayed(false);
     }
 
     pub fn print_world(&mut self) {

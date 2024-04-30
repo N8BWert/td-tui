@@ -8,6 +8,7 @@ use crate::{TowerType, TowerTarget, TowerDefenseWorld};
 
 use nate_engine::system;
 
+/// Find the First, Second, or Last Enemy within range to target.
 fn find_target_enemy_id(
     tower_bounds: &(u32, u32),
     target_enemy: &TowerTarget,
@@ -79,6 +80,7 @@ fn find_target_enemy_id(
     }
 }
 
+/// Do 1 damage per second to a given enemy
 #[system(
     world=TowerDefenseWorld,
     read=[tower_type, target_enemy, tower_bounds],

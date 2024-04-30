@@ -12,11 +12,18 @@ pub mod world;
 pub use world::tower_defense_world::TowerDefenseWorld;
 
 pub mod systems;
+use systems::tower_defense::{
+    alive_enemies::{count_alive_enemies, remove_dead_entities},
+    movement::base_enemy_movement_system,
+    tower::base_tower_attack_ai,
+};
 
 /// The total number of positions for enemies to move through
 pub const TOTAL_POSITIONS: u32 = 100;
 /// The total number of towers
 pub const TOTAL_TOWERS: u32 = 10;
+/// The separation between towers
+pub const TOWER_SEPARATION: u32 = TOTAL_POSITIONS / TOTAL_TOWERS;
 
 /// The Type of Tower
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -60,33 +67,30 @@ fn main() -> std::io::Result<()> {
     {
         let mut world = world.write().unwrap();
 
-        // Add a set of towers
-        let tower_ids = world.add_entities(TOTAL_TOWERS as usize);
-        world.set_tower_types(&tower_ids, tower_ids.iter().map(|_v| TowerType::Broken).collect());
-        world.set_tower_type(tower_ids[0], TowerType::Base);
-
-        // Add Enemies
-        let enemy_ids = world.add_entities(10 as usize);
-        world.set_enemy_types(&enemy_ids, enemy_ids.iter().map(|_v| EnemyType::Base).collect());
-        world.set_sprites(&enemy_ids, vec![String::from("O"); 10]);
-        world.set_healths(&enemy_ids, enemy_ids.iter().map(|_v| 1).collect());
-        world.set_enemy_positions(&enemy_ids, enemy_ids.iter().enumerate().map(|v| TOTAL_POSITIONS - v.0 as u32).collect());
-
         // Initialize Singular Components
-        world.set_base_health(100);
-        world.set_base_damage(0);
-        world.set_removal_entities(Vec::new());
-        world.set_alive_enemies(0);
+        world.initialize_singular_components(100);
+
+        // Add a real tower
+        world.add_base_tower(TowerTarget::First, 0);
+
+        // Add Broken Towers
+        world.add_broken_towers((TOTAL_TOWERS - 1) as usize);
+
+        // Add some enemies
+        world.add_base_enemies(vec![99, 98, 97, 96, 95, 94, 93, 92, 91, 90]);
     }
 
     let renderer = tui::TowerDefenseRenderer::new()?;
 
     let mut engine = Engine::new(
-        30,
+        60,
         args.workers,
         world,
         vec![
-
+            (count_alive_enemies, 100_000),
+            (remove_dead_entities, 100_000),
+            (base_enemy_movement_system, 1_000_000),
+            (base_tower_attack_ai, 1_000_000),
         ],
         Box::new(renderer)
     );
