@@ -72,9 +72,11 @@ impl Renderer<TowerDefenseWorld> for TowerDefenseRenderer {
                         .borders(Borders::ALL)
                         .title(
                             format!(
-                                "Tower Defense tui ----- Base Health: {} ----- Alive Enemies: {}",
+                                "Tower Defense tui ----- Base Health: {} ----- Alive Enemies: {} ----- Points: {} ----- Level: {}",
                                 (*world.base_health.read().unwrap()).unwrap(),
                                 (*world.alive_enemies.read().unwrap()).unwrap(),
+                                (*world.points.read().unwrap()).unwrap(),
+                                (*world.level.read().unwrap()).unwrap(),
                             )
                         )
                     )

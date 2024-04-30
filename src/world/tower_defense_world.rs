@@ -15,6 +15,8 @@ use crate::{EnemyType, TowerTarget, TowerType, TOWER_SEPARATION};
         alive_enemies,
         selected_tower,
         help_displayed,
+        points,
+        level,
     ]
 )]
 pub struct TowerDefenseWorld {
@@ -47,6 +49,10 @@ pub struct TowerDefenseWorld {
     selected_tower: u32,
     // Whether or not help is being displayed
     help_displayed: bool,
+    // Points obtained
+    points: u32,
+    // Current Level
+    level: u32,
 }
 
 impl TowerDefenseWorld {
@@ -164,6 +170,8 @@ impl TowerDefenseWorld {
         self.set_alive_enemies(0);
         self.set_selected_tower(0);
         self.set_help_displayed(false);
+        self.set_points(10);
+        self.set_level(1);
     }
 
     pub fn print_world(&mut self) {

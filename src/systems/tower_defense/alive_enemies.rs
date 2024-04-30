@@ -8,7 +8,7 @@ use std::sync::{Arc, RwLock};
 
 use nate_engine::system;
 
-use crate::TowerDefenseWorld;
+use crate::{EnemyType, TowerDefenseWorld};
 
 #[system(
     world=TowerDefenseWorld,
@@ -28,10 +28,16 @@ pub fn remove_dead_entities(world: Arc<RwLock<TowerDefenseWorld>>) {
         
         // Check for 0 health entities
         let health = read_world.health.read().unwrap();
-        for (entity_id, health) in health.iter().enumerate().rev() {
+        let enemy_type = read_world.enemy_type.read().unwrap();
+        let mut points_ref = read_world.points.write().unwrap();
+        let mut points = points_ref.as_mut().unwrap();
+        for ((entity_id, health), enemy_type) in health.iter().enumerate().zip(enemy_type.iter()).rev() {
             if let Some(health) = health.as_ref() {
                 if *health == 0 {
                     remove_entities.push(entity_id);
+                    match enemy_type.unwrap() {
+                        EnemyType::Base => *points += 1,
+                    }
                 }
             }
         }
