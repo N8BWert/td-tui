@@ -84,7 +84,7 @@ pub fn spawn_more_enemies(world: Arc<RwLock<TowerDefenseWorld>>) {
             let level_three_positions = (0..level_three_enemies).map(|v| TOTAL_POSITIONS + level_one_enemies + level_two_enemies + v).collect();
             let level_four_positions = (0..level_four_enemies).map(|v| TOTAL_POSITIONS + level_one_enemies + level_two_enemies + level_three_enemies + v).collect();
             let level_five_positions = (0..level_four_enemies).map(|v| TOTAL_POSITIONS + level_one_enemies + level_two_enemies + level_three_enemies + level_four_enemies + v).collect();
-            let level_six_positions = (0..level_six_enemies).map(|v| TOTAL_POSITIONS + level_one_enemies + level_two_enemies + level_three_enemies + level_four_enemies + level_five_enemies + v).collect();
+            let level_six_positions = (0..level_six_enemies).map(|v| TOTAL_POSITIONS + level_one_enemies + level_two_enemies + v).collect();
 
             world.add_base_enemies(level_one_positions);
             world.add_second_enemies(level_two_positions);
