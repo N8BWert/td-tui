@@ -84,76 +84,88 @@ impl Renderer<TowerDefenseWorld> for TowerDefenseRenderer {
                     .x_bounds([0.0, TOTAL_POSITIONS as f64])
                     .y_bounds([-25.0, 24.0])
                     .paint(|ctx| {
-                        let mut tower_num = 0;
-                        let sprite = world.sprite.read().unwrap();
-                        let tower_type = world.tower_type.read().unwrap();
-                        let health = world.health.read().unwrap();
-                        let enemy_position = world.enemy_position.read().unwrap();
-
-                        for ((((
-                            _entity_id,
-                            sprite),
-                            tower_type),
-                            health),
-                            enemy_position
-                        ) in sprite.iter().enumerate()
-                            .zip(tower_type.iter())
-                            .zip(health.iter())
-                            .zip(enemy_position.iter()).filter(|v| v.0.0.0.1.is_some()) {
-                            let sprite = sprite.as_ref().unwrap();
-                            if tower_type.is_some() {
-                                // Draw Upgrade Cost Above Tower
-                                if tower_num == world.selected_tower.read().unwrap().unwrap() {
-                                    ctx.print(
-                                        TOWER_SEPARATION as f64 * (tower_num as f64 + 0.5),
-                                        if tower_num % 2 == 0 { 12.0 } else { -12.0 },
-                                        sprite.clone().white().bold().underlined(),
-                                    );
-                                    ctx.print(
-                                        TOWER_SEPARATION as f64 * (tower_num as f64 + 0.5),
-                                        if tower_num % 2 == 0 { 16.0 } else { -17.0 },
-                                        format!("{}", tower_type.unwrap().upgrade_price()).bold(),
-                                    )
-                                } else {
-                                    ctx.print(
-                                        TOWER_SEPARATION as f64 * (tower_num as f64 + 0.5),
-                                        if tower_num % 2 == 0 { 12.0 } else { -12.0 },
-                                        sprite.clone().white(),
-                                    );
-                                    ctx.print(
-                                        TOWER_SEPARATION as f64 * (tower_num as f64 + 0.5),
-                                        if tower_num % 2 == 0 { 16.0 } else { -17.0 },
-                                        format!("{}", tower_type.unwrap().upgrade_price()),
-                                    );
-                                }
-                                tower_num += 1;
-                            } else if let (Some(position), Some(health)) = (enemy_position, health) {
-                                if *position < TOTAL_POSITIONS {
-                                    match *health {
-                                        0 => (),
-                                        1 => ctx.print(*position as f64, 0.0, sprite.clone().red()),
-                                        2 => ctx.print(*position as f64, 0.0, sprite.clone().light_red()),
-                                        3 => ctx.print(*position as f64, 0.0, sprite.clone().light_yellow()),
-                                        4 => ctx.print(*position as f64, 0.0, sprite.clone().yellow()),
-                                        5 => ctx.print(*position as f64, 0.0, sprite.clone().light_green()),
-                                        6 => ctx.print(*position as f64, 0.0, sprite.clone().green()),
-                                        7 => ctx.print(*position as f64, 0.0, sprite.clone().light_blue()),
-                                        8 => ctx.print(*position as f64, 0.0, sprite.clone().blue()),
-                                        9 => ctx.print(*position as f64, 0.0, sprite.clone().light_cyan()),
-                                        10 => ctx.print(*position as f64, 0.0, sprite.clone().cyan()),
-                                        11 => ctx.print(*position as f64, 0.0, sprite.clone().light_magenta()),
-                                        12 => ctx.print(*position as f64, 0.0, sprite.clone().magenta()),
-                                        13 => ctx.print(*position as f64, 0.0, sprite.clone().gray()),
-                                        14 => ctx.print(*position as f64, 0.0, sprite.clone().white()),
-                                        15 => ctx.print(*position as f64, 0.0, sprite.clone().bold().red()),
-                                        16 => ctx.print(*position as f64, 0.0, sprite.clone().bold().yellow()),
-                                        17 => ctx.print(*position as f64, 0.0, sprite.clone().bold().green()),
-                                        18 => ctx.print(*position as f64, 0.0, sprite.clone().bold().blue()),
-                                        19 => ctx.print(*position as f64, 0.0, sprite.clone().bold().cyan()),
-                                        _ => ctx.print(*position as f64, 0.0, sprite.clone().bold().magenta()),
+                        if world.help_displayed.read().unwrap().unwrap() {
+                            ctx.print(0.0, 9.0, "
+                                q - quit                               d (right arrow) - move tower selection right     a (left arrow) - move tower selection left\n
+                            ");
+                            ctx.print(0.0, 0.0, "
+                                w (up arrow) - upgrade tower           s (down arrow) - sell tower                      1 - make tower attack first enemy\n
+                            ");
+                            ctx.print(0.0, -10.0, "
+                                2 - make tower attack second enemy     3 - make tower attack last enemy                 h - toggle help\n
+                            ");
+                        } else {
+                            let mut tower_num = 0;
+                            let sprite = world.sprite.read().unwrap();
+                            let tower_type = world.tower_type.read().unwrap();
+                            let health = world.health.read().unwrap();
+                            let enemy_position = world.enemy_position.read().unwrap();
+    
+                            for ((((
+                                _entity_id,
+                                sprite),
+                                tower_type),
+                                health),
+                                enemy_position
+                            ) in sprite.iter().enumerate()
+                                .zip(tower_type.iter())
+                                .zip(health.iter())
+                                .zip(enemy_position.iter()).filter(|v| v.0.0.0.1.is_some()) {
+                                let sprite = sprite.as_ref().unwrap();
+                                if tower_type.is_some() {
+                                    // Draw Upgrade Cost Above Tower
+                                    if tower_num == world.selected_tower.read().unwrap().unwrap() {
+                                        ctx.print(
+                                            TOWER_SEPARATION as f64 * (tower_num as f64 + 0.5),
+                                            if tower_num % 2 == 0 { 12.0 } else { -12.0 },
+                                            sprite.clone().white().bold().underlined(),
+                                        );
+                                        ctx.print(
+                                            TOWER_SEPARATION as f64 * (tower_num as f64 + 0.5),
+                                            if tower_num % 2 == 0 { 16.0 } else { -17.0 },
+                                            format!("{}", tower_type.unwrap().upgrade_price()).bold(),
+                                        )
+                                    } else {
+                                        ctx.print(
+                                            TOWER_SEPARATION as f64 * (tower_num as f64 + 0.5),
+                                            if tower_num % 2 == 0 { 12.0 } else { -12.0 },
+                                            sprite.clone().white(),
+                                        );
+                                        ctx.print(
+                                            TOWER_SEPARATION as f64 * (tower_num as f64 + 0.5),
+                                            if tower_num % 2 == 0 { 16.0 } else { -17.0 },
+                                            format!("{}", tower_type.unwrap().upgrade_price()),
+                                        );
+                                    }
+                                    tower_num += 1;
+                                } else if let (Some(position), Some(health)) = (enemy_position, health) {
+                                    if *position < TOTAL_POSITIONS {
+                                        match *health {
+                                            0 => (),
+                                            1 => ctx.print(*position as f64, 0.0, sprite.clone().red()),
+                                            2 => ctx.print(*position as f64, 0.0, sprite.clone().light_red()),
+                                            3 => ctx.print(*position as f64, 0.0, sprite.clone().light_yellow()),
+                                            4 => ctx.print(*position as f64, 0.0, sprite.clone().yellow()),
+                                            5 => ctx.print(*position as f64, 0.0, sprite.clone().light_green()),
+                                            6 => ctx.print(*position as f64, 0.0, sprite.clone().green()),
+                                            7 => ctx.print(*position as f64, 0.0, sprite.clone().light_blue()),
+                                            8 => ctx.print(*position as f64, 0.0, sprite.clone().blue()),
+                                            9 => ctx.print(*position as f64, 0.0, sprite.clone().light_cyan()),
+                                            10 => ctx.print(*position as f64, 0.0, sprite.clone().cyan()),
+                                            11 => ctx.print(*position as f64, 0.0, sprite.clone().light_magenta()),
+                                            12 => ctx.print(*position as f64, 0.0, sprite.clone().magenta()),
+                                            13 => ctx.print(*position as f64, 0.0, sprite.clone().gray()),
+                                            14 => ctx.print(*position as f64, 0.0, sprite.clone().white()),
+                                            15 => ctx.print(*position as f64, 0.0, sprite.clone().bold().red()),
+                                            16 => ctx.print(*position as f64, 0.0, sprite.clone().bold().yellow()),
+                                            17 => ctx.print(*position as f64, 0.0, sprite.clone().bold().green()),
+                                            18 => ctx.print(*position as f64, 0.0, sprite.clone().bold().blue()),
+                                            19 => ctx.print(*position as f64, 0.0, sprite.clone().bold().cyan()),
+                                            _ => ctx.print(*position as f64, 0.0, sprite.clone().bold().magenta()),
+                                        }
                                     }
                                 }
-                            }
+                            }   
                         }
                     }),
                 area
