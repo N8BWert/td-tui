@@ -98,6 +98,24 @@ pub fn base_tower_attack_ai() {
     }
 }
 
+/// Do 1 damage per 0.5 seconds to a given enemy
+#[system(
+    world=TowerDefenseWorld,
+    read=[tower_type, target_enemy, tower_bounds],
+    filter=[*tower_type == TowerType::Second]
+)]
+pub fn second_tower_attack_ai() {
+    let target_enemy_id = find_target_enemy_id(tower_bounds, target_enemy, world.enemy_position.read().unwrap());
+
+    // Attack the enemy
+    if let Some(target_enemy_id) = target_enemy_id {
+        let mut health = world.health.write().unwrap();
+        if let Some(health_value) = health[target_enemy_id] {
+            health[target_enemy_id] = Some(health_value.saturating_sub(1));
+        }
+    }
+}
+
 /// Check whether a tower should be upgraded and, if so, upgrade the tower
 #[system(
     world=TowerDefenseWorld,
@@ -440,6 +458,30 @@ mod tests {
         // Make sure the 5th enemy lost health (i.e. it has 0 health now)
         let read_world = world.read().unwrap();
         assert_eq!(read_world.health.read().unwrap()[5].unwrap(), 0);
+    }
+
+    #[test]
+    fn test_second_tower_attack_enemy() {
+        let world = TowerDefenseWorld::new();
+
+        {
+            let mut world = world.write().unwrap();
+
+            // Initialize Singular Components
+            world.initialize_singular_components(100);
+
+            // Add a base tower
+            let _ = world.add_second_tower(TowerTarget::First, 0);
+
+            // Add a base enemy
+            let _ = world.add_base_enemies(vec![3]);
+        }
+
+        second_tower_attack_ai(world.clone());
+
+        // Make sure the enemy lost health
+        let read_world = world.read().unwrap();
+        assert_eq!(read_world.health.read().unwrap()[1], Some(0));
     }
 
     #[test]
