@@ -123,12 +123,14 @@ impl Renderer<TowerDefenseWorld> for TowerDefenseRenderer {
                                 }
                                 tower_num += 1;
                             } else if let (Some(position), Some(health)) = (enemy_position, health) {
-                                match *health {
-                                    0 => (),
-                                    1 => ctx.print(*position as f64, 0.0, sprite.clone().red()),
-                                    2 => ctx.print(*position as f64, 0.0, sprite.clone().yellow()),
-                                    3 => ctx.print(*position as f64, 0.0, sprite.clone().green()),
-                                    _ => ctx.print(*position as f64, 0.0, sprite.clone().blue()),
+                                if *position < TOTAL_POSITIONS {
+                                    match *health {
+                                        0 => (),
+                                        1 => ctx.print(*position as f64, 0.0, sprite.clone().red()),
+                                        2 => ctx.print(*position as f64, 0.0, sprite.clone().yellow()),
+                                        3 => ctx.print(*position as f64, 0.0, sprite.clone().green()),
+                                        _ => ctx.print(*position as f64, 0.0, sprite.clone().blue()),
+                                    }
                                 }
                             }
                         }

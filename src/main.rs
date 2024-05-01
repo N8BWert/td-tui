@@ -13,8 +13,8 @@ pub use world::tower_defense_world::TowerDefenseWorld;
 
 pub mod systems;
 use systems::tower_defense::{
-    alive_enemies::{count_alive_enemies, remove_dead_entities},
-    movement::base_enemy_movement_system,
+    alive_enemies::{count_alive_enemies, remove_dead_entities, spawn_more_enemies},
+    movement::{base_enemy_movement_system, second_enemy_movement_system},
     tower::{base_tower_attack_ai, upgrade_tower, downgrade_tower},
 };
 
@@ -110,9 +110,11 @@ fn main() -> std::io::Result<()> {
             (count_alive_enemies, 100_000),
             (remove_dead_entities, 100_000),
             (base_enemy_movement_system, 1_000_000),
+            (second_enemy_movement_system, 1_000_000),
             (base_tower_attack_ai, 1_000_000),
             (upgrade_tower, 50_000),
             (downgrade_tower, 50_000),
+            (spawn_more_enemies, 1_000_000),
         ],
         Box::new(renderer)
     );

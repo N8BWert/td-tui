@@ -8,7 +8,9 @@ use std::sync::{Arc, RwLock};
 
 use nate_engine::system;
 
-use crate::{EnemyType, TowerDefenseWorld};
+use crate::{EnemyType, TowerDefenseWorld, TOTAL_POSITIONS};
+
+// (0, 10) -> (0, 20) -> (10, 0) -> (10, 10) -> (10, 20) -> (20, 0)
 
 #[system(
     world=TowerDefenseWorld,
@@ -47,6 +49,33 @@ pub fn remove_dead_entities(world: Arc<RwLock<TowerDefenseWorld>>) {
     // Remove entities from the remove entities list
     let mut write_world = world.write().unwrap();
     write_world.remove_entities(remove_entities);
+}
+
+/// If a level has been completed, increment the level and add some new enemies
+pub fn spawn_more_enemies(world: Arc<RwLock<TowerDefenseWorld>>) {
+    if *world.read().unwrap().alive_enemies.read().unwrap() == Some(0) {
+        // Increment Level
+        let next_level = {
+            let world = world.read().unwrap();
+
+            let mut level_ref = world.level.write().unwrap();
+            *level_ref.as_mut().unwrap() += 1;
+            *level_ref.as_ref().unwrap()
+        };
+
+        // Add enemies
+        {
+            let mut world = world.write().unwrap();
+
+            // Add enemies
+            let level_one_enemies = (next_level % 3) * 10;
+            let level_two_enemies = (next_level / 3) * 10;
+            let level_one_positions = (0..level_one_enemies).map(|v| TOTAL_POSITIONS + v).collect();
+            let level_two_positions = (0..level_two_enemies).map(|v| TOTAL_POSITIONS + level_two_enemies + v).collect();
+            world.add_base_enemies(level_one_positions);
+            world.add_second_enemies(level_two_positions);
+        }
+    }
 }
 
 #[cfg(test)]
@@ -158,5 +187,46 @@ mod tests {
         assert_eq!(read_world.health_change.read().unwrap().len(), 100);
         assert_eq!(read_world.enemy_position.read().unwrap().len(), 100);
         assert_eq!(read_world.target_enemy.read().unwrap().len(), 100);
+    }
+
+    #[test]
+    fn test_spawn_enemies_level_2() {
+        let world = TowerDefenseWorld::new();
+
+        {
+            let mut world = world.write().unwrap();
+
+            // Initialize singular components
+            world.initialize_singular_components(100);
+            world.set_level(1);
+        }
+
+        spawn_more_enemies(world.clone());
+
+        // Make sure 20 level 1 enemies were instantiated
+        let read_world = world.read().unwrap();
+        assert_eq!(read_world.enemy_type.read().unwrap().iter().filter(|v| v.is_some() && v.unwrap() == EnemyType::Base).count(), 20);
+        assert_eq!(*read_world.level.read().unwrap(), Some(2));
+    }
+
+    #[test]
+    fn test_spawn_enemies_level_7() {
+        let world = TowerDefenseWorld::new();
+
+        {
+            let mut world = world.write().unwrap();
+
+            // Initialize singular components
+            world.initialize_singular_components(100);
+            world.set_level(6);
+        }
+
+        spawn_more_enemies(world.clone());
+
+        // Make sure 10 level 1 enemies and 20 level 2 enemies were instantiated
+        let read_world = world.read().unwrap();
+        assert_eq!(read_world.enemy_type.read().unwrap().iter().filter(|v| v.is_some() && v.unwrap() == EnemyType::Base).count(), 10);
+        assert_eq!(read_world.enemy_type.read().unwrap().iter().filter(|v| v.is_some() && v.unwrap() == EnemyType::Second).count(), 20);
+        assert_eq!(*read_world.level.read().unwrap(), Some(7));
     }
 }
