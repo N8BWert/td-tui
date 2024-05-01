@@ -18,6 +18,7 @@ use crate::{EnemyType, TowerTarget, TowerType, TOWER_SEPARATION};
         points,
         level,
         upgrading_tower,
+        downgrading_tower,
     ]
 )]
 pub struct TowerDefenseWorld {
@@ -56,6 +57,8 @@ pub struct TowerDefenseWorld {
     level: u32,
     // Upgrading the current tower (flag passed by the input handler)
     upgrading_tower: bool,
+    // Downgrading the current tower (flag passed by the input handler)
+    downgrading_tower: bool,
 }
 
 impl TowerDefenseWorld {
@@ -155,6 +158,26 @@ impl TowerDefenseWorld {
         }
     }
 
+    /// Sell a given tower
+    pub fn sell_tower(
+        &self,
+        tower_number: u32,
+        entity_id: usize,
+        current_tower_type: TowerType,
+    ) {
+        let _midpoint = TOWER_SEPARATION / 2 * (2 * tower_number + 1);
+        match current_tower_type {
+            TowerType::Broken => {
+
+            },
+            TowerType::Base => {
+                *self.tower_type.write().unwrap().get_mut(entity_id).expect("Entity ID Must Be Valid") = Some(TowerType::Broken);
+                *self.tower_bounds.write().unwrap().get_mut(entity_id).expect("Entity ID Must Be Valid") = Some((0, 0));
+                *self.sprite.write().unwrap().get_mut(entity_id).expect("Entity Id Must Be Valid") = Some(String::from("-"));
+            },
+        }
+    }
+
     /// Add a bunch of enemies with their components
     pub fn add_enemies(
         &mut self,
@@ -217,6 +240,7 @@ impl TowerDefenseWorld {
         self.set_points(10);
         self.set_level(1);
         self.set_upgrading_tower(false);
+        self.set_downgrading_tower(false);
     }
 
     pub fn print_world(&mut self) {

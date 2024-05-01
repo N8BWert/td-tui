@@ -192,6 +192,9 @@ impl Renderer<TowerDefenseWorld> for TowerDefenseRenderer {
                         KeyCode::Char('w') | KeyCode::Up => {
                             *world.upgrading_tower.write().unwrap() = Some(true);
                         },
+                        KeyCode::Char('s') | KeyCode::Down => {
+                            *world.downgrading_tower.write().unwrap() = Some(true);
+                        }
                         _ => (),
                     }
                 }

@@ -130,6 +130,36 @@ pub fn upgrade_tower() {
     }
 }
 
+/// Check whether a tower should be sold and, if so, sell the tower
+#[system(
+    world=TowerDefenseWorld,
+    _write=[downgrading_tower, points],
+    _read=[selected_tower],
+)]
+pub fn downgrade_tower() {
+    if *downgrading_tower {
+        let mut current_tower_type: Option<TowerType> = None;
+        let mut current_entity_id: Option<usize> = None;
+
+        let mut current_tower = 0;
+        for (entity_id, tower_type) in world.tower_type.read().unwrap().iter().enumerate().filter(|v| v.1.is_some()) {
+            if current_tower == *selected_tower {
+                current_tower_type = Some(tower_type.unwrap());
+                current_entity_id = Some(entity_id);
+                break;
+            }
+            current_tower += 1;
+        }
+
+        if let (Some(current_tower_type), Some(current_entity_id)) = (current_tower_type, current_entity_id) {
+            world.sell_tower(*selected_tower, current_entity_id, current_tower_type);
+            *points += current_tower_type.sell_price();
+        }
+
+        *downgrading_tower = false;
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::sync::RwLock;
@@ -517,5 +547,86 @@ mod tests {
         assert_eq!(read_world.tower_type.read().unwrap()[0], Some(TowerType::Broken));
         assert_eq!(*read_world.points.read().unwrap(), Some(5));
         assert_eq!(*read_world.upgrading_tower.read().unwrap(), Some(false));
+    }
+
+    #[test]
+    fn test_downgrade_tower_not_downgrading_tower() {
+        let world = TowerDefenseWorld::new();
+
+        {
+            let mut world = world.write().unwrap();
+
+            // Initialize Singular Components
+            world.initialize_singular_components(100);
+            world.set_points(10);
+
+            // Add a base tower
+            world.add_base_tower(TowerTarget::First, 0);
+        }
+
+        downgrade_tower(world.clone());
+
+        // Make sure the tower wasn't sold
+        let read_world = world.read().unwrap();
+        assert_eq!(read_world.tower_type.read().unwrap()[0], Some(TowerType::Base));
+        assert_eq!(*read_world.points.read().unwrap(), Some(10));
+    }
+
+    #[test]
+    fn test_sell_first_tower() {
+        let world = TowerDefenseWorld::new();
+
+        {
+            let mut world = world.write().unwrap();
+
+            // Initialize Singular Components
+            world.initialize_singular_components(100);
+            world.set_points(10);
+            world.set_selected_tower(0);
+            world.set_downgrading_tower(true);
+
+            // Add a base tower
+            world.add_base_tower(TowerTarget::First, 0);
+        }
+
+        downgrade_tower(world.clone());
+
+        // Make sure the tower was sold
+        let read_world = world.read().unwrap();
+        assert_eq!(read_world.tower_type.read().unwrap()[0], Some(TowerType::Broken));
+        assert_eq!(read_world.tower_bounds.read().unwrap()[0], Some((0, 0)));
+        assert_eq!(read_world.sprite.read().unwrap()[0], Some(String::from("-")));
+        assert_eq!(*read_world.points.read().unwrap(), Some(15));
+        assert_eq!(*read_world.downgrading_tower.read().unwrap(), Some(false));
+    }
+
+    #[test]
+    fn test_sell_tower() {
+        let world = TowerDefenseWorld::new();
+
+        {
+            let mut world = world.write().unwrap();
+
+            // Initialize Singular Components
+            world.initialize_singular_components(100);
+            world.set_points(10);
+            world.set_selected_tower(2);
+            world.set_downgrading_tower(true);
+
+            // Add 3 base towers
+            world.add_base_tower(TowerTarget::First, 0);
+            world.add_base_tower(TowerTarget::First, 1);
+            world.add_base_tower(TowerTarget::First, 2);
+        }
+
+        downgrade_tower(world.clone());
+
+        // Make sure the tower was sold
+        let read_world = world.read().unwrap();
+        assert_eq!(read_world.tower_type.read().unwrap()[2], Some(TowerType::Broken));
+        assert_eq!(read_world.tower_bounds.read().unwrap()[2], Some((0, 0)));
+        assert_eq!(read_world.sprite.read().unwrap()[2], Some(String::from("-")));
+        assert_eq!(*read_world.points.read().unwrap(), Some(15));
+        assert_eq!(*read_world.downgrading_tower.read().unwrap(), Some(false));
     }
 }

@@ -15,7 +15,7 @@ pub mod systems;
 use systems::tower_defense::{
     alive_enemies::{count_alive_enemies, remove_dead_entities},
     movement::base_enemy_movement_system,
-    tower::{base_tower_attack_ai, upgrade_tower},
+    tower::{base_tower_attack_ai, upgrade_tower, downgrade_tower},
 };
 
 /// The total number of positions for enemies to move through
@@ -35,10 +35,19 @@ pub enum TowerType {
 }
 
 impl TowerType {
+    /// The cost to upgrade a tower
     pub fn upgrade_price(&self) -> u32 {
         match self {
             TowerType::Broken => 10,
             TowerType::Base => 20,
+        }
+    }
+
+    /// The number of points gained from selling a tower
+    pub fn sell_price(&self) -> u32 {
+        match self {
+            TowerType::Broken => 0,
+            TowerType::Base => 5,
         }
     }
 }
@@ -103,6 +112,7 @@ fn main() -> std::io::Result<()> {
             (base_enemy_movement_system, 1_000_000),
             (base_tower_attack_ai, 1_000_000),
             (upgrade_tower, 50_000),
+            (downgrade_tower, 50_000),
         ],
         Box::new(renderer)
     );
