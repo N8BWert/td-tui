@@ -102,6 +102,12 @@ impl Renderer<TowerDefenseWorld> for TowerDefenseRenderer {
                             .zip(enemy_position.iter()).filter(|v| v.0.0.0.1.is_some()) {
                             let sprite = sprite.as_ref().unwrap();
                             if tower_type.is_some() {
+                                // Draw Upgrade Cost Above Tower
+                                ctx.print(
+                                    TOWER_SEPARATION as f64 * (tower_num as f64 + 0.5),
+                                    if tower_num % 2 == 0 { 16.0 } else { -17.0 },
+                                    format!("{}", tower_type.unwrap().upgrade_price())
+                                );
                                 if tower_num == world.selected_tower.read().unwrap().unwrap() {
                                     ctx.print(
                                         TOWER_SEPARATION as f64 * (tower_num as f64 + 0.5),
@@ -182,6 +188,9 @@ impl Renderer<TowerDefenseWorld> for TowerDefenseRenderer {
                             } else {
                                 *world.help_displayed.write().unwrap() = Some(true);
                             }
+                        },
+                        KeyCode::Char('w') | KeyCode::Up => {
+                            *world.upgrading_tower.write().unwrap() = Some(true);
                         },
                         _ => (),
                     }

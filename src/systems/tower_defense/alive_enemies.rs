@@ -37,6 +37,7 @@ pub fn remove_dead_entities(world: Arc<RwLock<TowerDefenseWorld>>) {
                     remove_entities.push(entity_id);
                     match enemy_type.unwrap() {
                         EnemyType::Base => *points += 1,
+                        EnemyType::Second => *points += 2,
                     }
                 }
             }

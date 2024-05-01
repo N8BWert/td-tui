@@ -17,6 +17,7 @@ use crate::{EnemyType, TowerTarget, TowerType, TOWER_SEPARATION};
         help_displayed,
         points,
         level,
+        upgrading_tower,
     ]
 )]
 pub struct TowerDefenseWorld {
@@ -53,6 +54,8 @@ pub struct TowerDefenseWorld {
     points: u32,
     // Current Level
     level: u32,
+    // Upgrading the current tower (flag passed by the input handler)
+    upgrading_tower: bool,
 }
 
 impl TowerDefenseWorld {
@@ -75,6 +78,16 @@ impl TowerDefenseWorld {
     /// Add a singular base enemy
     pub fn add_base_enemy(&mut self, position: u32) -> usize {
         self.add_enemy(EnemyType::Base, String::from("X"), position, 1)
+    }
+
+    /// Add a singular second enemy
+    pub fn add_second_enemy(&mut self, position: u32) -> usize {
+        self.add_enemy(
+            EnemyType::Second,
+            String::from("Q"),
+            position,
+            2,
+        )
     }
 
     /// Add a tower entity
@@ -122,6 +135,26 @@ impl TowerDefenseWorld {
         )
     }
 
+    /// Upgrade a given tower
+    pub fn upgrade_tower(
+        &self,
+        tower_number: u32,
+        entity_id: usize,
+        current_tower_type: TowerType,
+    ) {
+        let midpoint = TOWER_SEPARATION / 2 * (2 * tower_number + 1);
+        match current_tower_type {
+            TowerType::Broken => {
+                *self.tower_type.write().unwrap().get_mut(entity_id).expect("Entity Id Must Be Valid") = Some(TowerType::Base);
+                *self.tower_bounds.write().unwrap().get_mut(entity_id).expect("Entity ID Must be Valid") = Some((midpoint - 2, midpoint + 2));
+                *self.sprite.write().unwrap().get_mut(entity_id).expect("Entity Id must be valid") = Some(String::from("!"));
+            },
+            TowerType::Base => {
+                
+            },
+        }
+    }
+
     /// Add a bunch of enemies with their components
     pub fn add_enemies(
         &mut self,
@@ -144,6 +177,17 @@ impl TowerDefenseWorld {
         self.add_enemies(
             positions.iter().map(|_v| EnemyType::Base).collect(),
             positions.iter().map(|_v| String::from("X")).collect(),
+            positions,
+            healths,
+        )
+    }
+
+    /// Add a bunch of second enemies
+    pub fn add_second_enemies(&mut self, positions: Vec<u32>) -> Vec<usize> {
+        let healths = positions.iter().map(|_v| 2).collect();
+        self.add_enemies(
+            positions.iter().map(|_v| EnemyType::Second).collect(),
+            positions.iter().map(|_v| String::from("Q")).collect(),
             positions,
             healths,
         )
@@ -172,6 +216,7 @@ impl TowerDefenseWorld {
         self.set_help_displayed(false);
         self.set_points(10);
         self.set_level(1);
+        self.set_upgrading_tower(false);
     }
 
     pub fn print_world(&mut self) {

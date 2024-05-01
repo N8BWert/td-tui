@@ -98,6 +98,38 @@ pub fn base_tower_attack_ai() {
     }
 }
 
+/// Check whether a tower should be upgraded and, if so, upgrade the tower
+#[system(
+    world=TowerDefenseWorld,
+    _write=[upgrading_tower, points],
+    _read=[selected_tower],
+)]
+pub fn upgrade_tower() {
+    if *upgrading_tower {
+        let mut current_tower_type: Option<TowerType> = None;
+        let mut current_entity_id: Option<usize> = None;
+
+        let mut current_tower = 0;
+        for (entity_id, tower_type) in world.tower_type.read().unwrap().iter().enumerate().filter(|v| v.1.is_some()) {
+            if current_tower == *selected_tower {
+                current_tower_type = Some(tower_type.unwrap());
+                current_entity_id = Some(entity_id);
+                break;
+            }
+            current_tower += 1;
+        }
+
+        if let (Some(current_tower_type), Some(current_entity_id)) = (current_tower_type, current_entity_id) {
+            if *points >= current_tower_type.upgrade_price() {
+                world.upgrade_tower(*selected_tower, current_entity_id, current_tower_type);
+                *points -= current_tower_type.upgrade_price();
+            }
+        }
+
+        *upgrading_tower = false;
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::sync::RwLock;
@@ -378,5 +410,112 @@ mod tests {
         // Make sure the 5th enemy lost health (i.e. it has 0 health now)
         let read_world = world.read().unwrap();
         assert_eq!(read_world.health.read().unwrap()[5].unwrap(), 0);
+    }
+
+    #[test]
+    fn test_upgrade_tower_no_tower_to_upgrade() {
+        let world = TowerDefenseWorld::new();
+
+        {
+            let mut world = world.write().unwrap();
+
+            // Initialize Singular Components
+            world.initialize_singular_components(100);
+            world.set_selected_tower(0);
+            world.set_upgrading_tower(false);
+            world.set_points(10);
+
+            // Add a broken tower
+            let _ = world.add_broken_tower();
+        }
+
+        upgrade_tower(world.clone());
+
+        // Make sure the broken tower wasn't upgraded and the current points didn't change
+        let read_world = world.read().unwrap();
+        assert_eq!(read_world.tower_type.read().unwrap()[0], Some(TowerType::Broken));
+        assert_eq!(*read_world.points.read().unwrap(), Some(10));
+    }
+
+    #[test]
+    fn test_upgrade_tower_first_tower() {
+        let world = TowerDefenseWorld::new();
+
+        {
+            let mut world = world.write().unwrap();
+
+            // Initialize Singular Components
+            world.initialize_singular_components(100);
+            world.set_selected_tower(0);
+            world.set_upgrading_tower(true);
+            world.set_points(10);
+
+            // Add a broken tower
+            let _ = world.add_broken_tower();
+        }
+
+        upgrade_tower(world.clone());
+
+        // Make sure the broken tower was upgraded and the current points is 0
+        let read_world = world.read().unwrap();
+        assert_eq!(read_world.tower_type.read().unwrap()[0], Some(TowerType::Base));
+        assert_eq!(read_world.tower_bounds.read().unwrap()[0], Some((3, 7)));
+        assert_eq!(read_world.sprite.read().unwrap()[0], Some(String::from("!")));
+        assert_eq!(*read_world.points.read().unwrap(), Some(0));
+        assert_eq!(*read_world.upgrading_tower.read().unwrap(), Some(false));
+    }
+
+    #[test]
+    fn test_upgrade_a_tower() {
+        let world = TowerDefenseWorld::new();
+
+        {
+            let mut world = world.write().unwrap();
+
+            // Initialize Singular Components
+            world.initialize_singular_components(100);
+            world.set_selected_tower(3);
+            world.set_upgrading_tower(true);
+            world.set_points(10);
+
+            // Add a few broken towers
+            let _ = world.add_broken_towers(10);
+        }
+
+        upgrade_tower(world.clone());
+
+        // Make sure the 4th broken tower was upgraded
+        let read_world = world.read().unwrap();
+        assert_eq!(read_world.tower_type.read().unwrap()[3], Some(TowerType::Base));
+        assert_eq!(read_world.tower_bounds.read().unwrap()[3], Some((33, 37)));
+        assert_eq!(read_world.sprite.read().unwrap()[3], Some(String::from("!")));
+        assert_eq!(*read_world.points.read().unwrap(), Some(0));
+        assert_eq!(*read_world.upgrading_tower.read().unwrap(), Some(false));
+    }
+
+    #[test]
+    fn test_upgrade_tower_not_enough_points() {
+        let world = TowerDefenseWorld::new();
+
+        {
+            let mut world = world.write().unwrap();
+
+            // Initialize Singular Components
+            world.initialize_singular_components(100);
+            world.set_selected_tower(0);
+            world.set_upgrading_tower(true);
+            world.set_points(5);
+
+            // Add a broken tower
+            world.add_broken_tower();
+        }
+
+        upgrade_tower(world.clone());
+
+        // Make sure the tower wasn't upgraded
+        let read_world = world.read().unwrap();
+        assert_eq!(read_world.tower_type.read().unwrap()[0], Some(TowerType::Broken));
+        assert_eq!(*read_world.points.read().unwrap(), Some(5));
+        assert_eq!(*read_world.upgrading_tower.read().unwrap(), Some(false));
     }
 }

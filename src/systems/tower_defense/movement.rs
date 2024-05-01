@@ -18,7 +18,22 @@ pub fn base_enemy_movement_system() {
     *enemy_position = enemy_position.saturating_sub(1);
     if *enemy_position == 0 {
         *base_health = base_health.saturating_sub(1);
-        *health = health.saturating_sub(1);
+        *health = 0;
+    }
+}
+
+#[system(
+    world=TowerDefenseWorld,
+    read=[enemy_type],
+    write=[health, enemy_position],
+    _write=[base_health],
+    filter=[*enemy_type == EnemyType::Second]
+)]
+pub fn second_enemy_movement_system() {
+    *enemy_position = enemy_position.saturating_sub(2);
+    if *enemy_position == 0 {
+        *base_health = base_health.saturating_sub(2);
+        *health = 0;
     }
 }
 

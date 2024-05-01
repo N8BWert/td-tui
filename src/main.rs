@@ -15,7 +15,7 @@ pub mod systems;
 use systems::tower_defense::{
     alive_enemies::{count_alive_enemies, remove_dead_entities},
     movement::base_enemy_movement_system,
-    tower::base_tower_attack_ai,
+    tower::{base_tower_attack_ai, upgrade_tower},
 };
 
 /// The total number of positions for enemies to move through
@@ -34,6 +34,15 @@ pub enum TowerType {
     Base,
 }
 
+impl TowerType {
+    pub fn upgrade_price(&self) -> u32 {
+        match self {
+            TowerType::Broken => 10,
+            TowerType::Base => 20,
+        }
+    }
+}
+
 /// Target Enemy for a given tower
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TowerTarget {
@@ -50,6 +59,8 @@ pub enum TowerTarget {
 pub enum EnemyType {
     // the base enemy moves 1 unit per second and has a base health of 1
     Base,
+    // The second class of enemy that moves 2 units per second and has a base health of 2
+    Second,
 }
 
 #[derive(Parser, Debug)]
@@ -91,6 +102,7 @@ fn main() -> std::io::Result<()> {
             (remove_dead_entities, 100_000),
             (base_enemy_movement_system, 1_000_000),
             (base_tower_attack_ai, 1_000_000),
+            (upgrade_tower, 50_000),
         ],
         Box::new(renderer)
     );
