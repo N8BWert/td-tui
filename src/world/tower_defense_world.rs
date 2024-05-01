@@ -153,6 +153,66 @@ impl TowerDefenseWorld {
         )
     }
 
+    /// Add a third tower (range of 9 units)
+    pub fn add_third_tower(
+        &mut self,
+        target_enemy: TowerTarget,
+        tower_number: u32,
+    ) -> usize {
+        let midpoint = TOWER_SEPARATION / 2 * (2 * tower_number + 1);
+        self.add_tower(
+            TowerType::Third,
+            target_enemy,
+            (midpoint - 4, midpoint + 4),
+            String::from("$"),
+        )
+    }
+
+    /// Add a fourth tower (range of 11 units)
+    pub fn add_fourth_tower(
+        &mut self,
+        target_enemy: TowerTarget,
+        tower_number: u32,
+    ) -> usize {
+        let midpoint = TOWER_SEPARATION / 2 * (2 * tower_number + 1);
+        self.add_tower(
+            TowerType::Fourth,
+            target_enemy,
+            (midpoint - 5, midpoint + 5),
+            String::from("@"),
+        )
+    }
+
+    /// Add a fifth tower (range of 11 units)
+    pub fn add_fifth_tower(
+        &mut self,
+        target_enemy: TowerTarget,
+        tower_number: u32,
+    ) -> usize {
+        let midpoint = TOWER_SEPARATION / 2 * (2 * tower_number + 1);
+        self.add_tower(
+            TowerType::Fifth,
+            target_enemy,
+            (midpoint - 5, midpoint + 5),
+            String::from("^"),
+        )
+    }
+
+    /// Add a final tower (range of 15 units)
+    pub fn add_final_tower(
+        &mut self,
+        target_enemy: TowerTarget,
+        tower_number: u32,
+    ) -> usize {
+        let midpoint = TOWER_SEPARATION / 2 * (2 * tower_number + 1);
+        self.add_tower(
+            TowerType::Final,
+            target_enemy,
+            (midpoint - 7, midpoint + 7),
+            String::from("|"),
+        )
+    }
+
     /// Upgrade a given tower
     pub fn upgrade_tower(
         &self,
@@ -162,18 +222,38 @@ impl TowerDefenseWorld {
     ) {
         let midpoint = TOWER_SEPARATION / 2 * (2 * tower_number + 1);
         match current_tower_type {
-            TowerType::Second => {
+            TowerType::Final => {
 
             },
-            TowerType::Broken => {
-                *self.tower_type.write().unwrap().get_mut(entity_id).expect("Entity Id Must Be Valid") = Some(TowerType::Base);
-                *self.tower_bounds.write().unwrap().get_mut(entity_id).expect("Entity ID Must be Valid") = Some((midpoint - 2, midpoint + 2));
-                *self.sprite.write().unwrap().get_mut(entity_id).expect("Entity Id must be valid") = Some(String::from("!"));
+            TowerType::Fifth => {
+                *self.tower_type.write().unwrap().get_mut(entity_id).expect("Entity Id Must Be Valid") = Some(TowerType::Final);
+                *self.tower_bounds.write().unwrap().get_mut(entity_id).expect("Entity ID Must be Valid") = Some((midpoint - 7, midpoint + 7));
+                *self.sprite.write().unwrap().get_mut(entity_id).expect("Entity Id must be valid") = Some(String::from("|"));
+            },
+            TowerType::Fourth => {
+                *self.tower_type.write().unwrap().get_mut(entity_id).expect("Entity Id Must Be Valid") = Some(TowerType::Fifth);
+                *self.tower_bounds.write().unwrap().get_mut(entity_id).expect("Entity ID Must be Valid") = Some((midpoint - 5, midpoint + 5));
+                *self.sprite.write().unwrap().get_mut(entity_id).expect("Entity Id must be valid") = Some(String::from("^"));
+            },
+            TowerType::Third => {
+                *self.tower_type.write().unwrap().get_mut(entity_id).expect("Entity Id Must Be Valid") = Some(TowerType::Fourth);
+                *self.tower_bounds.write().unwrap().get_mut(entity_id).expect("Entity ID Must be Valid") = Some((midpoint - 5, midpoint + 5));
+                *self.sprite.write().unwrap().get_mut(entity_id).expect("Entity Id must be valid") = Some(String::from("@"));
+            },
+            TowerType::Second => {
+                *self.tower_type.write().unwrap().get_mut(entity_id).expect("Entity Id Must Be Valid") = Some(TowerType::Third);
+                *self.tower_bounds.write().unwrap().get_mut(entity_id).expect("Entity ID Must be Valid") = Some((midpoint - 4, midpoint + 4));
+                *self.sprite.write().unwrap().get_mut(entity_id).expect("Entity Id must be valid") = Some(String::from("$"));
             },
             TowerType::Base => {
                 *self.tower_type.write().unwrap().get_mut(entity_id).expect("Entity Id Must Be Valid") = Some(TowerType::Second);
                 *self.tower_bounds.write().unwrap().get_mut(entity_id).expect("Entity ID Must be Valid") = Some((midpoint - 4, midpoint + 4));
                 *self.sprite.write().unwrap().get_mut(entity_id).expect("Entity Id must be valid") = Some(String::from("%"));
+            },
+            TowerType::Broken => {
+                *self.tower_type.write().unwrap().get_mut(entity_id).expect("Entity Id Must Be Valid") = Some(TowerType::Base);
+                *self.tower_bounds.write().unwrap().get_mut(entity_id).expect("Entity ID Must be Valid") = Some((midpoint - 2, midpoint + 2));
+                *self.sprite.write().unwrap().get_mut(entity_id).expect("Entity Id must be valid") = Some(String::from("!"));
             },
         }
     }
@@ -199,6 +279,26 @@ impl TowerDefenseWorld {
                 *self.tower_type.write().unwrap().get_mut(entity_id).expect("Entity ID Must Be Valid") = Some(TowerType::Base);
                 *self.tower_bounds.write().unwrap().get_mut(entity_id).expect("Entity ID Must Be Valid") = Some((midpoint - 2, midpoint + 2));
                 *self.sprite.write().unwrap().get_mut(entity_id).expect("Entity Id Must Be Valid") = Some(String::from("!"));
+            },
+            TowerType::Third => {
+                *self.tower_type.write().unwrap().get_mut(entity_id).expect("Entity ID Must Be Valid") = Some(TowerType::Second);
+                *self.tower_bounds.write().unwrap().get_mut(entity_id).expect("Entity ID Must Be Valid") = Some((midpoint - 4, midpoint + 4));
+                *self.sprite.write().unwrap().get_mut(entity_id).expect("Entity Id Must Be Valid") = Some(String::from("%"));
+            },
+            TowerType::Fourth => {
+                *self.tower_type.write().unwrap().get_mut(entity_id).expect("Entity ID Must Be Valid") = Some(TowerType::Third);
+                *self.tower_bounds.write().unwrap().get_mut(entity_id).expect("Entity ID Must Be Valid") = Some((midpoint - 4, midpoint + 4));
+                *self.sprite.write().unwrap().get_mut(entity_id).expect("Entity Id Must Be Valid") = Some(String::from("$"));
+            },
+            TowerType::Fifth => {
+                *self.tower_type.write().unwrap().get_mut(entity_id).expect("Entity ID Must Be Valid") = Some(TowerType::Fourth);
+                *self.tower_bounds.write().unwrap().get_mut(entity_id).expect("Entity ID Must Be Valid") = Some((midpoint - 5, midpoint + 5));
+                *self.sprite.write().unwrap().get_mut(entity_id).expect("Entity Id Must Be Valid") = Some(String::from("@"));
+            },
+            TowerType::Final => {
+                *self.tower_type.write().unwrap().get_mut(entity_id).expect("Entity ID Must Be Valid") = Some(TowerType::Fifth);
+                *self.tower_bounds.write().unwrap().get_mut(entity_id).expect("Entity ID Must Be Valid") = Some((midpoint - 5, midpoint + 5));
+                *self.sprite.write().unwrap().get_mut(entity_id).expect("Entity Id Must Be Valid") = Some(String::from("^"));
             }
         }
     }

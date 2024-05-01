@@ -25,6 +25,14 @@ pub enum TowerType {
     Base,
     // The second tower deals 1 unit of damage per 0.5 seconds
     Second,
+    // The third tower deals 3 units of damage per 1 second
+    Third,
+    // The forth tower deals 2 units of damage per 0.5 seconds
+    Fourth,
+    // The fifth tower deals 3 units of damage per 0.5 seconds
+    Fifth,
+    // The final tower deals 3 units of damage per 0.25 seconds
+    Final,
 }
 
 impl TowerType {
@@ -34,6 +42,10 @@ impl TowerType {
             TowerType::Broken => 10,
             TowerType::Base => 20,
             TowerType::Second => 30,
+            TowerType::Third => 40,
+            TowerType::Fourth => 50,
+            TowerType::Fifth => 60,
+            TowerType::Final => 0,
         }
     }
 
@@ -41,8 +53,7 @@ impl TowerType {
     pub fn sell_price(&self) -> u32 {
         match self {
             TowerType::Broken => 0,
-            TowerType::Base => 5,
-            TowerType::Second => 10,
+            _ => 5,
         }
     }
 }

@@ -116,6 +116,78 @@ pub fn second_tower_attack_ai() {
     }
 }
 
+/// Do 3 damage per second to a given enemy
+#[system(
+    world=TowerDefenseWorld,
+    read=[tower_type, target_enemy, tower_bounds],
+    filter=[*tower_type == TowerType::Third]
+)]
+pub fn third_tower_attack_ai() {
+    let target_enemy_id = find_target_enemy_id(tower_bounds, target_enemy, world.enemy_position.read().unwrap());
+
+    // Attack the enemy
+    if let Some(target_enemy_id) = target_enemy_id {
+        let mut health = world.health.write().unwrap();
+        if let Some(health_value) = health[target_enemy_id] {
+            health[target_enemy_id] = Some(health_value.saturating_sub(3));
+        }
+    }
+}
+
+/// Do 2 damage per 0.5 seconds to a given enemy
+#[system(
+    world=TowerDefenseWorld,
+    read=[tower_type, target_enemy, tower_bounds],
+    filter=[*tower_type == TowerType::Fourth]
+)]
+pub fn fourth_tower_attack_ai() {
+    let target_enemy_id = find_target_enemy_id(tower_bounds, target_enemy, world.enemy_position.read().unwrap());
+
+    // Attack the enemy
+    if let Some(target_enemy_id) = target_enemy_id {
+        let mut health = world.health.write().unwrap();
+        if let Some(health_value) = health[target_enemy_id] {
+            health[target_enemy_id] = Some(health_value.saturating_sub(2));
+        }
+    }
+}
+
+/// Do 3 damage per 0.5 seconds to a given enemy
+#[system(
+    world=TowerDefenseWorld,
+    read=[tower_type, target_enemy, tower_bounds],
+    filter=[*tower_type == TowerType::Fifth]
+)]
+pub fn fifth_tower_attack_ai() {
+    let target_enemy_id = find_target_enemy_id(tower_bounds, target_enemy, world.enemy_position.read().unwrap());
+
+    // Attack the enemy
+    if let Some(target_enemy_id) = target_enemy_id {
+        let mut health = world.health.write().unwrap();
+        if let Some(health_value) = health[target_enemy_id] {
+            health[target_enemy_id] = Some(health_value.saturating_sub(3));
+        }
+    }
+}
+
+/// Do 3 damage per 0.25 seconds to a given enemy
+#[system(
+    world=TowerDefenseWorld,
+    read=[tower_type, target_enemy, tower_bounds],
+    filter=[*tower_type == TowerType::Final]
+)]
+pub fn final_tower_attack_ai() {
+    let target_enemy_id = find_target_enemy_id(tower_bounds, target_enemy, world.enemy_position.read().unwrap());
+
+    // Attack the enemy
+    if let Some(target_enemy_id) = target_enemy_id {
+        let mut health = world.health.write().unwrap();
+        if let Some(health_value) = health[target_enemy_id] {
+            health[target_enemy_id] = Some(health_value.saturating_sub(3));
+        }
+    }
+}
+
 /// Check whether a tower should be upgraded and, if so, upgrade the tower
 #[system(
     world=TowerDefenseWorld,

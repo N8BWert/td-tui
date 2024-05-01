@@ -9,7 +9,16 @@ use clap::Parser;
 use td_tui::systems::tower_defense::{
     alive_enemies::{count_alive_enemies, remove_dead_entities, spawn_more_enemies},
     movement::{base_enemy_movement_system, second_enemy_movement_system},
-    tower::{base_tower_attack_ai, second_tower_attack_ai, upgrade_tower, downgrade_tower},
+    tower::{
+        base_tower_attack_ai,
+        second_tower_attack_ai,
+        third_tower_attack_ai,
+        fourth_tower_attack_ai,
+        fifth_tower_attack_ai,
+        final_tower_attack_ai,
+        upgrade_tower,
+        downgrade_tower,
+    },
 };
 
 use td_tui::{TOTAL_TOWERS, TowerTarget, TowerDefenseWorld, tui::TowerDefenseRenderer};
@@ -55,6 +64,10 @@ fn main() -> std::io::Result<()> {
             (second_enemy_movement_system, 1_000_000),
             (base_tower_attack_ai, 1_000_000),
             (second_tower_attack_ai, 500_000),
+            (third_tower_attack_ai, 1_000_000),
+            (fourth_tower_attack_ai, 500_000),
+            (fifth_tower_attack_ai, 500_000),
+            (final_tower_attack_ai, 250_000),
             (upgrade_tower, 50_000),
             (downgrade_tower, 50_000),
             (spawn_more_enemies, 1_000_000),
