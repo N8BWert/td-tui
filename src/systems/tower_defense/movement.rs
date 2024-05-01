@@ -37,6 +37,66 @@ pub fn second_enemy_movement_system() {
     }
 }
 
+#[system(
+    world=TowerDefenseWorld,
+    read=[enemy_type],
+    write=[health, enemy_position],
+    _write=[base_health],
+    filter=[*enemy_type == EnemyType::Third]
+)]
+pub fn third_enemy_movement_system() {
+    *enemy_position = enemy_position.saturating_sub(2);
+    if *enemy_position == 0 {
+        *base_health = base_health.saturating_sub(4);
+        *health = 0;
+    }
+}
+
+#[system(
+    world=TowerDefenseWorld,
+    read=[enemy_type],
+    write=[health, enemy_position],
+    _write=[base_health],
+    filter=[*enemy_type == EnemyType::Fourth]
+)]
+pub fn fourth_enemy_movement_system() {
+    *enemy_position = enemy_position.saturating_sub(3);
+    if *enemy_position == 0 {
+        *base_health = base_health.saturating_sub(4);
+        *health = 0;
+    }
+}
+
+#[system(
+    world=TowerDefenseWorld,
+    read=[enemy_type],
+    write=[health, enemy_position],
+    _write=[base_health],
+    filter=[*enemy_type == EnemyType::Fifth]
+)]
+pub fn fifth_enemy_movement_system() {
+    *enemy_position = enemy_position.saturating_sub(3);
+    if *enemy_position == 0 {
+        *base_health = base_health.saturating_sub(6);
+        *health = 0;
+    }
+}
+
+#[system(
+    world=TowerDefenseWorld,
+    read=[enemy_type],
+    write=[health, enemy_position],
+    _write=[base_health],
+    filter=[*enemy_type == EnemyType::Final]
+)]
+pub fn final_enemy_movement_system() {
+    *enemy_position = enemy_position.saturating_sub(1);
+    if *enemy_position == 0 {
+        *base_health = base_health.saturating_sub(20);
+        *health = 0;
+    }
+}
+
 #[cfg(test)]
 pub mod tests {
     use super::*;

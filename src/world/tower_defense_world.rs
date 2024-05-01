@@ -341,6 +341,50 @@ impl TowerDefenseWorld {
         )
     }
 
+    /// Add a bunch of third enemies
+    pub fn add_third_enemies(&mut self, positions: Vec<u32>) -> Vec<usize> {
+        let healths = positions.iter().map(|_v| 4).collect();
+        self.add_enemies(
+            positions.iter().map(|_v| EnemyType::Third).collect(),
+            positions.iter().map(|_v| String::from("T")).collect(),
+            positions,
+            healths,
+        )
+    }
+
+    /// Add a bunch of fourth enemies
+    pub fn add_fourth_enemies(&mut self, positions: Vec<u32>) -> Vec<usize> {
+        let healths = positions.iter().map(|_v| 4).collect();
+        self.add_enemies(
+            positions.iter().map(|_v| EnemyType::Fourth).collect(),
+            positions.iter().map(|_v| String::from("U")).collect(),
+            positions,
+            healths,
+        )
+    }
+
+    /// Add a bunch of fifth enemies
+    pub fn add_fifth_enemies(&mut self, positions: Vec<u32>) -> Vec<usize> {
+        let healths = positions.iter().map(|_v| 6).collect();
+        self.add_enemies(
+            positions.iter().map(|_v| EnemyType::Fifth).collect(),
+            positions.iter().map(|_v| String::from("N")).collect(),
+            positions,
+            healths,
+        )
+    }
+
+    /// Add a bunch of final enemies
+    pub fn add_final_enemies(&mut self, positions: Vec<u32>) -> Vec<usize> {
+        let healths = positions.iter().map(|_v| 20).collect();
+        self.add_enemies(
+            positions.iter().map(|_v| EnemyType::Final).collect(),
+            positions.iter().map(|_v| String::from("M")).collect(),
+            positions,
+            healths,
+        )
+    }
+
     /// Add a bunch of broken towers
     pub fn add_broken_towers(&mut self, towers: usize) -> Vec<usize> {
         let tower_ids = self.add_entities(towers);

@@ -76,4 +76,12 @@ pub enum EnemyType {
     Base,
     // The second class of enemy that moves 2 units per second and has a base health of 2
     Second,
+    // The third class of enemy that moves 2 units per second and has a base health of 4
+    Third,
+    // The forth class of enemy that moves 3 units per second and has a base health of 4
+    Fourth,
+    // The fifth class of enemy that moves 3 units per second and has a base health of 6
+    Fifth,
+    // The final class of enemy that moves 1 unit per second and has a base health of 20
+    Final,
 }

@@ -40,6 +40,10 @@ pub fn remove_dead_entities(world: Arc<RwLock<TowerDefenseWorld>>) {
                     match enemy_type.unwrap() {
                         EnemyType::Base => *points += 1,
                         EnemyType::Second => *points += 2,
+                        EnemyType::Third => *points += 3,
+                        EnemyType::Fourth => *points += 4,
+                        EnemyType::Fifth => *points += 5,
+                        EnemyType::Final => *points += 10,
                     }
                 }
             }
@@ -69,11 +73,25 @@ pub fn spawn_more_enemies(world: Arc<RwLock<TowerDefenseWorld>>) {
 
             // Add enemies
             let level_one_enemies = (next_level % 3) * 10;
-            let level_two_enemies = (next_level / 3) * 10;
+            let level_two_enemies = ((next_level / 3) % 3) * 10;
+            let level_three_enemies = ((next_level / 6) % 3) * 10;
+            let level_four_enemies = ((next_level / 9) % 3) * 10;
+            let level_five_enemies = ((next_level / 12) % 3) * 10;
+            let level_six_enemies = ((next_level / 15) % 3) * 2;
+
             let level_one_positions = (0..level_one_enemies).map(|v| TOTAL_POSITIONS + v).collect();
-            let level_two_positions = (0..level_two_enemies).map(|v| TOTAL_POSITIONS + level_two_enemies + v).collect();
+            let level_two_positions = (0..level_two_enemies).map(|v| TOTAL_POSITIONS + level_one_enemies + v).collect();
+            let level_three_positions = (0..level_three_enemies).map(|v| TOTAL_POSITIONS + level_one_enemies + level_two_enemies + v).collect();
+            let level_four_positions = (0..level_four_enemies).map(|v| TOTAL_POSITIONS + level_one_enemies + level_two_enemies + level_three_enemies + v).collect();
+            let level_five_positions = (0..level_four_enemies).map(|v| TOTAL_POSITIONS + level_one_enemies + level_two_enemies + level_three_enemies + level_four_enemies + v).collect();
+            let level_six_positions = (0..level_six_enemies).map(|v| TOTAL_POSITIONS + level_one_enemies + level_two_enemies + level_three_enemies + level_four_enemies + level_five_enemies + v).collect();
+
             world.add_base_enemies(level_one_positions);
             world.add_second_enemies(level_two_positions);
+            world.add_third_enemies(level_three_positions);
+            world.add_fourth_enemies(level_four_positions);
+            world.add_fifth_enemies(level_five_positions);
+            world.add_final_enemies(level_six_positions);
         }
     }
 }

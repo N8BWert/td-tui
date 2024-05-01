@@ -103,22 +103,27 @@ impl Renderer<TowerDefenseWorld> for TowerDefenseRenderer {
                             let sprite = sprite.as_ref().unwrap();
                             if tower_type.is_some() {
                                 // Draw Upgrade Cost Above Tower
-                                ctx.print(
-                                    TOWER_SEPARATION as f64 * (tower_num as f64 + 0.5),
-                                    if tower_num % 2 == 0 { 16.0 } else { -17.0 },
-                                    format!("{}", tower_type.unwrap().upgrade_price())
-                                );
                                 if tower_num == world.selected_tower.read().unwrap().unwrap() {
                                     ctx.print(
                                         TOWER_SEPARATION as f64 * (tower_num as f64 + 0.5),
                                         if tower_num % 2 == 0 { 12.0 } else { -12.0 },
-                                        sprite.clone().white().underlined(),
+                                        sprite.clone().white().bold().underlined(),
                                     );
+                                    ctx.print(
+                                        TOWER_SEPARATION as f64 * (tower_num as f64 + 0.5),
+                                        if tower_num % 2 == 0 { 16.0 } else { -17.0 },
+                                        format!("{}", tower_type.unwrap().upgrade_price()).bold(),
+                                    )
                                 } else {
                                     ctx.print(
                                         TOWER_SEPARATION as f64 * (tower_num as f64 + 0.5),
                                         if tower_num % 2 == 0 { 12.0 } else { -12.0 },
                                         sprite.clone().white(),
+                                    );
+                                    ctx.print(
+                                        TOWER_SEPARATION as f64 * (tower_num as f64 + 0.5),
+                                        if tower_num % 2 == 0 { 16.0 } else { -17.0 },
+                                        format!("{}", tower_type.unwrap().upgrade_price()),
                                     );
                                 }
                                 tower_num += 1;
@@ -127,9 +132,25 @@ impl Renderer<TowerDefenseWorld> for TowerDefenseRenderer {
                                     match *health {
                                         0 => (),
                                         1 => ctx.print(*position as f64, 0.0, sprite.clone().red()),
-                                        2 => ctx.print(*position as f64, 0.0, sprite.clone().yellow()),
-                                        3 => ctx.print(*position as f64, 0.0, sprite.clone().green()),
-                                        _ => ctx.print(*position as f64, 0.0, sprite.clone().blue()),
+                                        2 => ctx.print(*position as f64, 0.0, sprite.clone().light_red()),
+                                        3 => ctx.print(*position as f64, 0.0, sprite.clone().light_yellow()),
+                                        4 => ctx.print(*position as f64, 0.0, sprite.clone().yellow()),
+                                        5 => ctx.print(*position as f64, 0.0, sprite.clone().light_green()),
+                                        6 => ctx.print(*position as f64, 0.0, sprite.clone().green()),
+                                        7 => ctx.print(*position as f64, 0.0, sprite.clone().light_blue()),
+                                        8 => ctx.print(*position as f64, 0.0, sprite.clone().blue()),
+                                        9 => ctx.print(*position as f64, 0.0, sprite.clone().light_cyan()),
+                                        10 => ctx.print(*position as f64, 0.0, sprite.clone().cyan()),
+                                        11 => ctx.print(*position as f64, 0.0, sprite.clone().light_magenta()),
+                                        12 => ctx.print(*position as f64, 0.0, sprite.clone().magenta()),
+                                        13 => ctx.print(*position as f64, 0.0, sprite.clone().gray()),
+                                        14 => ctx.print(*position as f64, 0.0, sprite.clone().white()),
+                                        15 => ctx.print(*position as f64, 0.0, sprite.clone().bold().red()),
+                                        16 => ctx.print(*position as f64, 0.0, sprite.clone().bold().yellow()),
+                                        17 => ctx.print(*position as f64, 0.0, sprite.clone().bold().green()),
+                                        18 => ctx.print(*position as f64, 0.0, sprite.clone().bold().blue()),
+                                        19 => ctx.print(*position as f64, 0.0, sprite.clone().bold().cyan()),
+                                        _ => ctx.print(*position as f64, 0.0, sprite.clone().bold().magenta()),
                                     }
                                 }
                             }
