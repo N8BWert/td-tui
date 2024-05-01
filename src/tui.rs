@@ -87,13 +87,13 @@ impl Renderer<TowerDefenseWorld> for TowerDefenseRenderer {
                         if world.help_displayed.read().unwrap().unwrap() {
                             ctx.print(0.0, 9.0, "
                                 q - quit                               d (right arrow) - move tower selection right     a (left arrow) - move tower selection left\n
-                            ");
+                            ".green());
                             ctx.print(0.0, 0.0, "
                                 w (up arrow) - upgrade tower           s (down arrow) - sell tower                      1 - make tower attack first enemy\n
-                            ");
+                            ".green());
                             ctx.print(0.0, -10.0, "
                                 2 - make tower attack second enemy     3 - make tower attack last enemy                 h - toggle help\n
-                            ");
+                            ".green());
                         } else {
                             let mut tower_num = 0;
                             let sprite = world.sprite.read().unwrap();
